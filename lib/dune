@@ -1,0 +1,3 @@
+(library
+ (name blog)
+ (libraries omd angstrom fileutils))
