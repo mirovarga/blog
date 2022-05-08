@@ -216,11 +216,13 @@ module SSG = struct
                ^ ".html"))
     in
 
-    FileUtil.mkdir ~parent:true ~mode:(`Octal 0o700) dest_dir;
     let posts =
       Parser.blog_of_md_dir src_dir
       |> List.filter (fun (p : Parser.post) -> not p.metadata.draft)
     in
+
+    FileUtil.rm ~recurse:true [ dest_dir ];
+    FileUtil.mkdir ~parent:true ~mode:(`Octal 0o700) dest_dir;
     generate_index posts;
     generate_posts posts
 end
