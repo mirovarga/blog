@@ -84,80 +84,31 @@ module SSG = struct
     Printf.sprintf
       {|<!doctype html>
     
-    <html lang="en">
+    <html>
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
       <title>%s - Miro Varga</title>
       
-      <style>
-        body {
-            margin: 10ch auto;
-            padding: 0 2ch;
-            max-width: 80ch;
-            font-family: monospace;
-            line-height: 1.6;
-            color: darkslategray;
-        }
-
-        header {
-            margin-bottom: 5ch;
-            color: gray;
-            font-size: small;
-        }
-
-        header a {
-            color: gray;
-            text-decoration: none;
-        }
-
-        article {
-            margin: 10ch auto;
-        }
-
-        article>p:nth-child(4) {
-            margin-top: 5ch;
-        }
-
-        footer {
-            margin-top: 15ch;
-            color: gray;
-            font-size: smaller;
-        }
-
-        a {
-            color: brown;
-        }
-
-        blockquote {
-            border-left: 2px solid lightgray;
-            padding-left: 1ch;
-        }
-
-        pre {
-            border: 1px solid lightgray;
-            border-radius: 1ch;
-            padding: 1ch;
-        }
-      </style>
+      <link href="/main.min.css" rel="stylesheet">
     </head>
     
-    <body>
-      <header>
-        <a href="/">MIRO VARGA</a>
+    <body class="container mx-auto px-10 prose">
+      <header class="mt-5 mb-10">
+        <a href=" /" class="no-underline text-gray-400">MIRO VARGA</a>
       </header>
       
       <article>%s</article>
       
-      <footer>
+      <footer class="mt-20 mb-10 text-sm text-gray-400">
         Hi, I'm Miro Varga, a software developer based in Prague, Czechia.
         Check my work on
-        <a href="https://github.com/mirovarga">GitHub</a>,
+        <a href="https://github.com/mirovarga" class="text-inherit">GitHub</a>,
         see my CV on
-        <a href ="https://www.linkedin.com/in/miro-varga-670002187">LinkedIn</a>,
+        <a href="https://www.linkedin.com/in/miro-varga-670002187" class="text-inherit">LinkedIn</a>,
         or send me an email to
-        <a href="mailto:hello@mirovarga.com">hello@mirovarga.com</a>.
+        <a href="mailto:hello@mirovarga.com" class="text-inherit">hello@mirovarga.com</a>.
       </footer>
     </body>
     </html>
