@@ -1,5 +1,11 @@
 module Parser = struct
-  type metadata = { title : string; created : string; draft : bool }
+  type metadata = {
+    title : string;
+    created_iso : string;
+    created_raw : string;
+    draft : bool;
+  }
+
   type post = { metadata : metadata; location : string }
 
   let chars_to_string ch = List.to_seq ch |> String.of_seq |> String.trim
@@ -16,7 +22,7 @@ module Parser = struct
     skip_whitespace *> char '#' *> many_till any_char end_of_line
     >>| chars_to_string
 
-  let created_iso_p =
+  let created_iso_raw_p =
     let open Angstrom in
     let* month' = skip_whitespace *> char '*' *> take 3 in
     let* day = char ' ' *> (take 1 <* char ',' <|> (take 2 <* char ',')) in
@@ -38,9 +44,12 @@ module Parser = struct
           ("Dec", 12);
         ]
     in
-    return
-      (Printf.sprintf "%s%s%02d%s%02d" year "-" (month month') "-"
-         (int_of_string day))
+    let created_iso =
+      Printf.sprintf "%s%s%02d%s%02d" year "-" (month month') "-"
+        (int_of_string day)
+    in
+    let created_raw = month' ^ " " ^ day ^ ", " ^ year in
+    return (created_iso, created_raw)
 
   let draft_p =
     let open Angstrom in
@@ -49,9 +58,15 @@ module Parser = struct
   let metadata_p =
     let open Angstrom in
     let* title = title_p in
-    let* created = created_iso_p in
+    let* created_iso_raw = created_iso_raw_p in
     let* draft = option false draft_p in
-    return { title; created; draft }
+    return
+      {
+        title;
+        created_iso = fst created_iso_raw;
+        created_raw = snd created_iso_raw;
+        draft;
+      }
 
   let metadata_of_md md =
     match Angstrom.parse_string ~consume:Prefix metadata_p md with
@@ -123,10 +138,12 @@ module SSG = struct
             in
             base ^ ".html"
           in
-          Printf.sprintf {|<li><a href="%s">%s</a></li>|} url p.metadata.title)
+          Printf.sprintf
+            {|<li><span class="text-gray-400">[%s] </span> <a href="%s">%s</a></li>|}
+            p.metadata.created_raw url p.metadata.title)
       @@ List.fast_sort
            (fun (p1 : Parser.post) p2 ->
-             compare p2.metadata.created p1.metadata.created)
+             compare p2.metadata.created_iso p1.metadata.created_iso)
            ps
       |> List.fold_left ( ^ ) ""
     in
