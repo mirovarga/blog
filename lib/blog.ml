@@ -80,47 +80,41 @@ module Parser = struct
 end
 
 module SSG = struct
-  let html_template =
-    Printf.sprintf
-      {|<!doctype html>
-    
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-
-      <title>%s - Miro Varga</title>
-      
-      <link href="/main.min.css" rel="stylesheet">
-    </head>
-    
-    <body class="container mx-auto px-10 prose">
-      <header class="mt-5 mb-10">
-        <a href=" /" class="no-underline text-gray-400">MIRO VARGA</a>
-      </header>
-      
-      <article>%s</article>
-      
-      <footer class="mt-20 mb-10 text-sm text-gray-400">
-        Hi, I'm Miro Varga, a software developer based in Prague, Czechia.
-        Check my work on
-        <a href="https://github.com/mirovarga" class="text-inherit">GitHub</a>,
-        see my CV on
-        <a href="https://www.linkedin.com/in/miro-varga-670002187" class="text-inherit">LinkedIn</a>,
-        or send me an email to
-        <a href="mailto:hello@mirovarga.com" class="text-inherit">hello@mirovarga.com</a>.
-      </footer>
-    </body>
-    </html>
-    |}
-
-  let post_html (p : Parser.post) =
-    let ch = In_channel.open_text p.location in
-    let html = In_channel.input_all ch |> Omd.of_string |> Omd.to_html in
-    In_channel.close ch;
-    (p, html_template p.metadata.title html)
-
   let index_html ps =
+    let html_template =
+      Printf.sprintf
+        {|<!doctype html>
+  
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+          <title>%s - Miro Varga</title>
+          
+          <link href="/main.min.css" rel="stylesheet">
+        </head>
+  
+        <body class="container mx-auto px-10 prose lg:text-lg">
+          <header class="mt-5 mb-10">
+            <a href="/" class="no-underline text-gray-400">MIRO VARGA</a>
+          </header>
+          
+          <ul>%s</ul>
+
+          <footer class="mt-20 mb-10 text-sm text-gray-400">
+            Hi, I'm Miro Varga, a software developer based in Prague, Czechia.
+            Check my work 
+            <a href="https://github.com/mirovarga" class="text-inherit">GitHub</a>,
+            see my CV 
+            <a href="https://www.linkedin.com/in/miro-varga-670002187" class="text-inherit">LinkedIn</a>,
+            or send me an email to
+            <a href="mailto:hello@mirovarga.com" class="text-inherit">hello@mirovarga.com</a>.
+          </footer>
+        </body>
+        </html>
+        |}
+    in
     let body =
       List.map (fun (p : Parser.post) ->
           let url =
@@ -129,8 +123,7 @@ module SSG = struct
             in
             base ^ ".html"
           in
-          Printf.sprintf {|<section><a href="%s">%s</a></section>|} url
-            p.metadata.title)
+          Printf.sprintf {|<li><a href="%s">%s</a></li>|} url p.metadata.title)
       @@ List.fast_sort
            (fun (p1 : Parser.post) p2 ->
              compare p2.metadata.created p1.metadata.created)
@@ -138,6 +131,46 @@ module SSG = struct
       |> List.fold_left ( ^ ) ""
     in
     html_template "Home" @@ Printf.sprintf "%s" body
+
+  let post_html (p : Parser.post) =
+    let html_template =
+      Printf.sprintf
+        {|<!doctype html>
+      
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+        <title>%s - Miro Varga</title>
+        
+        <link href="/main.min.css" rel="stylesheet">
+      </head>
+      
+      <body class="container mx-auto px-10 prose lg:text-lg">
+        <header class="mt-5 mb-10">
+          <a href="/" class="no-underline text-gray-400">MIRO VARGA</a>
+        </header>
+        
+        <article>%s</article>
+        
+        <footer class="mt-20 mb-10 text-sm text-gray-400">
+          Hi, I'm Miro Varga, a software developer based in Prague, Czechia.
+          Check my work 
+          <a href="https://github.com/mirovarga" class="text-inherit">GitHub</a>,
+          see my CV 
+          <a href="https://www.linkedin.com/in/miro-varga-670002187" class="text-inherit">LinkedIn</a>,
+          or send me an email to
+          <a href="mailto:hello@mirovarga.com" class="text-inherit">hello@mirovarga.com</a>.
+        </footer>
+      </body>
+      </html>
+      |}
+    in
+    let ch = In_channel.open_text p.location in
+    let html = In_channel.input_all ch |> Omd.of_string |> Omd.to_html in
+    In_channel.close ch;
+    (p, html_template p.metadata.title html)
 
   let post_file_to_html_file src_path dest_path =
     let post = Parser.post_of_md_file src_path in
